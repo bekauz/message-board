@@ -1,24 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 function App() {
+
+  const postMsg = () => {
+    console.log("postMsg call");
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+      <div className="dataContainer">
+        <div className="header">
+          message board
+        </div>
+
+        <div className="subheader">
+          decentralized and all, go on and post something
+        </div>
+
+        <button className="postButton" onClick={postMsg}>
+          Post something
+        </button>
+      </div>
     </div>
   );
 }
