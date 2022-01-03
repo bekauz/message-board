@@ -1,14 +1,15 @@
+import { ethers } from "ethers";
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import abi from "./utils/MessageBoard.json";
 
 declare var window: any
 
 function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
-  const postMsg = () => {
-    console.log("postMsg call");
-  }
+  const contractAddress = process.env.CONTRACT_ADDRESS;
+  const contractABI = abi.abi;
 
   const checkWalletConnection = async () => {
     try {
@@ -58,6 +59,31 @@ function App() {
     }
   };
 
+  const postMessage = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        
+        const messageBoardContract = new ethers.Contract(
+          contractAddress || "",
+          contractABI,
+          signer
+        );
+        let postCount = await messageBoardContract.getPostCount();
+        console.log(`total post count: ${postCount}`);
+
+      } else {
+        console.log("eth object not found");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     checkWalletConnection();
   }, [])
@@ -74,7 +100,7 @@ function App() {
           decentralized and all, go on and post something
         </div>
 
-        <button className="postButton" onClick={postMsg}>
+        <button className="postButton" onClick={postMessage}>
           Post something
         </button>
 

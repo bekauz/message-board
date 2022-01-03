@@ -8,6 +8,8 @@ const main = async () => {
   const Token = await hre.ethers.getContractFactory('MessageBoard');
   const msgBoard = await Token.deploy();
 
+  await msgBoard.deployed();
+
   console.log(`MessageBoard address: ${msgBoard.address}`);
 };
 
