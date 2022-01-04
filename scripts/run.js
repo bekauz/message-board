@@ -11,18 +11,14 @@ const main = async() => {
   console.log(`Contract deployed to: ${messageBoardContract.address}`);
   console.log(`Contract deployed by: ${owner.address}`);
 
-  // try to submit posts from multiple addresses
-  let postCount = await messageBoardContract.getPostCount();
-
-  let postTxn = await messageBoardContract.post();
+  let postTxn = await messageBoardContract.post("message 1");
   await postTxn.wait();
 
-  postCount = await messageBoardContract.getPostCount();
-
-  postTxn = await messageBoardContract.connect(randomPerson).post();
+  postTxn = await messageBoardContract.connect(randomPerson).post("message 2");
   await postTxn.wait();
 
-  postCount = await messageBoardContract.getPostCount();
+  let allPosts = await messageBoardContract.getAllPosts();
+  console.log(allPosts);
 };
 
 const runMain = async () => {
