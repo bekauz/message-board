@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import abi from "./utils/MessageBoard.json";
@@ -8,7 +8,10 @@ declare var window: any
 function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
-  const contractAddress = process.env.CONTRACT_ADDRESS;
+  const [postCount, setPostCount] = useState(BigNumber.from("0"));
+  const [miningTx, setMiningTx] = useState(false);
+  
+  const contractAddress = "0x5b8bF88E03E841250B9535cd042b73a46C6F661d";
   const contractABI = abi.abi;
 
   const checkWalletConnection = async () => {
@@ -67,15 +70,52 @@ function App() {
 
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        
         const messageBoardContract = new ethers.Contract(
-          contractAddress || "",
+          contractAddress,
           contractABI,
           signer
         );
-        let postCount = await messageBoardContract.getPostCount();
-        console.log(`total post count: ${postCount}`);
+        
+        const currentPostCount: BigNumber = await messageBoardContract.getPostCount();
+        console.log(`total post count: ${currentPostCount}`);
 
+        const postTxn = await messageBoardContract.post();
+        console.log(`Mining tx with hash ${postTxn.hash}`);
+        
+        setMiningTx(true);
+        await postTxn.wait();
+        setMiningTx(false);
+        setPostCount(currentPostCount.add(1));
+
+        console.log(`Successfully mined tx: ${[postTxn.hash]}`);
+
+        console.log(`total post count: ${postCount}`);
+      } else {
+        console.log("eth object not found");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getCurrentPostCount = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const messageBoardContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+        
+        const currentPostCount: BigNumber = await messageBoardContract.getPostCount();
+        setPostCount(currentPostCount);
+
+        console.log(`current post count: ${postCount}`);
       } else {
         console.log("eth object not found");
       }
@@ -88,9 +128,12 @@ function App() {
     checkWalletConnection();
   }, [])
 
+  useEffect(() => {
+    getCurrentPostCount();
+  }, [])
+
   return (
     <div className="App">
-
       <div className="dataContainer">
         <div className="header">
           message board
@@ -99,9 +142,12 @@ function App() {
         <div className="subheader">
           decentralized and all, go on and post something
         </div>
-
-        <button className="postButton" onClick={postMessage}>
-          Post something
+        <button className="postButton" disabled={miningTx} onClick={postMessage}>
+          {miningTx ? (
+            "Posting something..."
+          ) : (
+            "Post something"
+          )}
         </button>
 
         {!currentAccount && (
@@ -109,6 +155,8 @@ function App() {
             Connect Wallet
           </button>
         )}
+
+        <p className="text">Current post count: {postCount.toString()}</p>
       </div>
     </div>
   );

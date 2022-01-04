@@ -24,9 +24,12 @@
   color: white;
 }
 
-.subheader {
+.subheader, .text {
   text-align: center;
   color: gray;
+}
+
+.subheader {
   margin-top: 16px;
 }
 
