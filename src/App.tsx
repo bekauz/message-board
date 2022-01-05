@@ -219,17 +219,21 @@ function App() {
           </button>
         )}
 
-        <p className="text">Current post count: {postCount.toString()}</p>
+        {currentAccount && (
+          <div>
+            <p className="text">Current post count: {postCount.toString()}</p>
 
-        {allPosts.map((post, index) => {
-          return (
-            <div key={index} className="post">
-              <div>Address: <span className="post-content">{post.address}</span></div>
-              <div>Time: <span className="post-content">{post.timestamp.toString()}</span></div>
-              <div>Message: <span className="post-content">{post.message}</span></div>
-            </div>
-          )
-        })}
+            {allPosts.map((post, index) => {
+              return (
+                <div key={index} className="post">
+                  <div>Address: <span className="post-content">{post.address}</span></div>
+                  <div>Time: <span className="post-content">{post.timestamp.toString()}</span></div>
+                  <div>Message: <span className="post-content">{post.message}</span></div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
