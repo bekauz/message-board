@@ -20,7 +20,7 @@ function App() {
 
   const [postInput, setPostInput] = useState("");
 
-  const contractAddress = "0x47D08d805c1330Af8D262065256Cd191868B691B";
+  const contractAddress = "0x6B61191d588ACa7E50290c9162c931BadE0BEF38";
   const contractABI = abi.abi;
 
   const checkWalletConnection = async () => {
@@ -67,6 +67,8 @@ function App() {
 
       console.log(`Connected: ${accounts[0]}`);
       setCurrentAccount(accounts[0]);
+      await getAllPosts();
+      await getCurrentPostCount();
     } catch (err) {
       console.log(err);
     }

@@ -21,7 +21,7 @@ contract MessageBoard {
     // store all the posts
     Post[] posts;
 
-    constructor() {
+    constructor() payable {
         console.log("MessageBoard constructor call");
     }
 
@@ -32,6 +32,16 @@ contract MessageBoard {
         posts.push(Post(msg.sender, _message, block.timestamp));
 
         emit NewPost(msg.sender, block.timestamp, _message);
+
+        uint256 prizeAmount = 0.0001 ether;
+        // validate balance or cancel the tx
+        require(
+            prizeAmount <= address(this).balance,
+            "Amount to be withdrawn exceeds contract balance"
+        );
+        // transfer the funds and store the tx result in a bool
+        (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+        require(success, "Failed to withdraw amount");
     }
 
     function getAllPosts() public view returns (Post[] memory) {
