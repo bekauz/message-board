@@ -20,7 +20,7 @@ function App() {
 
   const [postInput, setPostInput] = useState("");
 
-  const contractAddress = "0x6B61191d588ACa7E50290c9162c931BadE0BEF38";
+  const contractAddress = "0x611A9Fc833672f35BcA18534432aA01bfFC49E05";
   const contractABI = abi.abi;
 
   const checkWalletConnection = async () => {
