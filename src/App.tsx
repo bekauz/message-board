@@ -1,4 +1,5 @@
-import { BigNumber, ethers } from "ethers";
+import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
+import { BigNumber, Contract, ethers } from "ethers";
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import abi from "./utils/MessageBoard.json";
@@ -80,9 +81,9 @@ function App() {
 
       if (ethereum) {
 
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const messageBoardContract = new ethers.Contract(
+        const provider: Web3Provider = new ethers.providers.Web3Provider(ethereum);
+        const signer: JsonRpcSigner = provider.getSigner();
+        const messageBoardContract: Contract = new ethers.Contract(
           contractAddress,
           contractABI,
           signer
@@ -90,8 +91,9 @@ function App() {
 
         const currentPostCount: BigNumber = await messageBoardContract.getPostCount();
         console.log(`total post count: ${currentPostCount}`);
+        // set default gas to 300000, if that exceeds the actual amt it gets refunded
+        const postTxn = await messageBoardContract.post(postInput, { gasLimit: 300000 });
 
-        const postTxn = await messageBoardContract.post(postInput);
         console.log(`Mining tx with hash ${postTxn.hash}`);
 
         setMiningTx(true);
@@ -117,9 +119,9 @@ function App() {
 
       if (ethereum) {
 
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const messageBoardContract = new ethers.Contract(
+        const provider: Web3Provider = new ethers.providers.Web3Provider(ethereum);
+        const signer: JsonRpcSigner = provider.getSigner();
+        const messageBoardContract: Contract = new ethers.Contract(
           contractAddress,
           contractABI,
           signer
@@ -143,9 +145,9 @@ function App() {
       const { ethereum } = window;
 
       if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const messageBoardContract = new ethers.Contract(
+        const provider: Web3Provider = new ethers.providers.Web3Provider(ethereum);
+        const signer: JsonRpcSigner = provider.getSigner();
+        const messageBoardContract: Contract = new ethers.Contract(
           contractAddress,
           contractABI,
           signer
@@ -153,7 +155,7 @@ function App() {
 
         const posts: any[] = await messageBoardContract.getAllPosts();
         let sanitizedPosts: Post[] = [];
-        posts.forEach(post => {
+        posts.forEach((post: any) => {
           sanitizedPosts.push({
             address: post.postUser,
             timestamp: new Date(post.timestamp * 1000),
