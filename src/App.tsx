@@ -140,10 +140,10 @@ function App() {
   };
 
   const getAllPosts = async () => {
+
+    const { ethereum } = window;
+
     try {
-
-      const { ethereum } = window;
-
       if (ethereum) {
         const provider: Web3Provider = new ethers.providers.Web3Provider(ethereum);
         const signer: JsonRpcSigner = provider.getSigner();
@@ -152,27 +152,53 @@ function App() {
           contractABI,
           signer
         );
-
         const posts: any[] = await messageBoardContract.getAllPosts();
-        let sanitizedPosts: Post[] = [];
-        posts.forEach((post: any) => {
-          sanitizedPosts.push({
+        
+        let sanitizedPosts: Post[] = posts.map((post: any) => {
+          return {
             address: post.postUser,
             timestamp: new Date(post.timestamp * 1000),
             message: post.message,
-          });
+          };
         });
-        console.log(posts);
-        console.log(sanitizedPosts);
         setAllPosts(sanitizedPosts);
       } else {
         console.log("eth object not found");
       }
-
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    let messageBoardContract: Contract;
+
+    const onNewPost = (from: string, timestamp: any, message: string) => {
+      console.log("NewPost", from, timestamp, message);
+      setAllPosts(currentPosts => [
+        ...currentPosts,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+      ]);
+    };
+
+    if (window.ethereum) {
+      const provider: Web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer: JsonRpcSigner = provider.getSigner();
+
+      messageBoardContract = new ethers.Contract(contractAddress, contractABI, signer);
+      messageBoardContract.on("NewPost", onNewPost);
+    }
+
+    return () => {
+      if (messageBoardContract) {
+        messageBoardContract.off("NewPost", onNewPost);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     checkWalletConnection();
