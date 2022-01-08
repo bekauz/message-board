@@ -16,7 +16,7 @@ function App() {
 
   const [currentAccount, setCurrentAccount] = useState("");
   const [allPosts, setAllPosts] = useState<Post[]>([]);
-  const [postCount, setPostCount] = useState(BigNumber.from("0"));
+  const [postCount, setPostCount] = useState(0);
   const [miningTx, setMiningTx] = useState(false);
 
   const [postInput, setPostInput] = useState("");
@@ -69,7 +69,6 @@ function App() {
       console.log(`Connected: ${accounts[0]}`);
       setCurrentAccount(accounts[0]);
       await getAllPosts();
-      await getCurrentPostCount();
     } catch (err) {
       console.log(err);
     }
@@ -100,37 +99,10 @@ function App() {
         await postTxn.wait();
         await getAllPosts();
         setMiningTx(false);
-        setPostCount(currentPostCount.add(1));
 
         console.log(`Successfully mined tx: ${[postTxn.hash]}`);
 
         console.log(`total post count: ${postCount}`);
-      } else {
-        console.log("eth object not found");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getCurrentPostCount = async () => {
-    try {
-      const { ethereum } = window;
-
-      if (ethereum) {
-
-        const provider: Web3Provider = new ethers.providers.Web3Provider(ethereum);
-        const signer: JsonRpcSigner = provider.getSigner();
-        const messageBoardContract: Contract = new ethers.Contract(
-          contractAddress,
-          contractABI,
-          signer
-        );
-
-        const currentPostCount: BigNumber = await messageBoardContract.getPostCount();
-        setPostCount(currentPostCount);
-
-        console.log(`current post count: ${postCount}`);
       } else {
         console.log("eth object not found");
       }
@@ -162,6 +134,7 @@ function App() {
           };
         });
         setAllPosts(sanitizedPosts);
+        setPostCount(sanitizedPosts.length);
       } else {
         console.log("eth object not found");
       }
@@ -202,10 +175,6 @@ function App() {
 
   useEffect(() => {
     checkWalletConnection();
-  }, [])
-
-  useEffect(() => {
-    getCurrentPostCount();
   }, [])
 
   const handleInputMessageChange = (e: any) => {
